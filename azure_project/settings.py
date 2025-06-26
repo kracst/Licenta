@@ -13,8 +13,13 @@ SECRET_KEY = 'django-insecure-2#p9z0-d=39&qbu#&f1p6m=2+j!a4_n_r9q%wz192hfwva&24^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.31', '127.0.0.1', 'localhost']
-
+ALLOWED_HOSTS = [
+    '192.168.1.6',  # Django server IP
+    '192.168.1.7',  # Arduino IP (optional, only needed if Django serves requests to Arduino)
+    'localhost',
+    '127.0.0.1',
+    '.azurewebsites.net'  # For Azure deployment
+]
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587

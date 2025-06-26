@@ -103,6 +103,7 @@ def dashboard(request):
 
 @csrf_exempt  # Disable CSRF for simplicity (only for testing!)
 def receive_data(request):
+    print("🔥 receive_data view was triggered!")
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -111,12 +112,12 @@ def receive_data(request):
             temperature = data.get('temperature')
             humidity = data.get('humidity')
             luminosity = data.get('luminosity')  
-            pH = data.get('pH')  
+            ph = data.get('ph')  
 
             if temperature is not None and humidity is not None and luminosity is not None:
-                SensorData.objects.create(temperature=temperature, humidity=humidity, luminosity=luminosity, pH=pH,  timestamp=now())
+                SensorData.objects.create(temperature=temperature, humidity=humidity, luminosity=luminosity, ph=ph,  timestamp=now())
                 print("Data saved successfully!")  # Debugging line
-                check_humidity_and_alert(humidity)
+                #check_humidity_and_alert(humidity)
                 return JsonResponse({"message": "Data received successfully"}, status=201)
             else:
                 print("Invalid data format:", data)  # Debugging line
@@ -137,67 +138,13 @@ def get_sensor_data(request):
         'temperature': data.temperature,
         'humidity': data.humidity,
         'luminosity': data.luminosity,
-        'pH': data.pH, 
+        'ph': data.ph, 
         'timestamp': data.timestamp.isoformat()
     } for data in sensor_data]
     
     
     return JsonResponse(data_list, safe=False)
 
-def clean_humidity_value(humidity_value):
-    if humidity_value is None:
-        return None  # or raise an error if needed
-    
-    # Convert to string in case it's not (e.g., if it's a number)
-    humidity_str = str(humidity_value)
-    
-    # Remove all non-digit and non-decimal characters
-    cleaned_value = ''.join(c for c in humidity_str if c.isdigit() or c == '.')
-    
-    # Handle cases where the string is empty after cleaning
-    if not cleaned_value:
-        return None
-    
-    # Convert to float (handle possible errors)
-    try:
-        return float(cleaned_value)
-    except ValueError:
-        return None
-
-def check_humidity_and_alert(humidity_value):
-    print("\n=== Starting humidity check ===")
-    threshold = 40
-    cleaned_value = clean_humidity_value(humidity_value)
-    print(f"Cleaned humidity value: {cleaned_value}")
-
-    if cleaned_value is None:
-        print("!! Invalid humidity value")
-        return
-
-    active_users = User.objects.filter(is_active=True)
-    print(f"Active users found: {active_users.count()}")
-
-    if cleaned_value < threshold:
-        print(f"!! Alert condition: {cleaned_value} < {threshold}")
-        latest_data = SensorData.objects.last()
-        print(f"Latest sensor data: {latest_data}")
-
-        for user in active_users:
-            if user.email:
-                print(f"\nPreparing email for: {user.email}")
-                try:
-                    send_mail(
-                        f'⚠️ Humidity Alert: {cleaned_value}%',
-                        f'Humidity is below threshold! Current: {cleaned_value}%',
-                        None,
-                        [user.email],
-                        fail_silently=False
-                    )
-                    print(f"Successfully sent to {user.email}")
-                except Exception as e:
-                    print(f"!! Failed to send to {user.email}: {str(e)}")
-    else:
-        print(f"No alert needed: {cleaned_value} >= {threshold}")
 
 def download_excel(request):
     wb = openpyxl.Workbook()

@@ -59,7 +59,7 @@
                     <span class="badge bg-white text-success rounded-pill">Live</span>
                 </div>
                     <h5 class="mb-1">Nivel pH</h5>
-                    <h2 class="mb-0 card-value" id="pH-value">{{ sensor_data.0.pH|default:"--"}}</h2>
+                    <h2 class="mb-0 card-value" id="ph-value">{{ sensor_data.0.ph|default:"--"}}</h2>
                     <small class="text-white-50">Actualizată: <span id="luminosity-time">Chiar acum</span></small>
                 </div>
             </div>
@@ -483,6 +483,7 @@
                 document.getElementById('humidity-value').textContent = `${latestData.humidity}%`;
                 document.getElementById('temperature-value').textContent = `${latestData.temperature}°C`;
                 document.getElementById('luminosity-value').textContent = `${latestData.luminosity}%`;
+                document.getElementById('ph-value').textContent = `${latestData.ph}`;
 
                 // Update timestamps
                 const now = new Date();
